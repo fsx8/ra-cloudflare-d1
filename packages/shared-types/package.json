@@ -1,0 +1,32 @@
+{
+  "name": "@ra-cloudflare-d1/types",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fsx8/ra-cloudflare-d1.git",
+    "directory": "packages/shared-types"
+  },
+  "homepage": "https://github.com/fsx8/ra-cloudflare-d1#readme",
+  "bugs": {
+    "url": "https://github.com/fsx8/ra-cloudflare-d1/issues"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "pnpm run build",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "test": "echo \"(no tests)\"",
+    "lint": "eslint ."
+  }
+}
