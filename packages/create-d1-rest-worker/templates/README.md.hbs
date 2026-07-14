@@ -1,0 +1,19 @@
+#
+{{projectName}}
+
+Cloudflare Worker REST API for D1 (React-Admin Simple REST compatible). ##
+Deploy ```bash pnpm install pnpm exec wrangler secret put API_KEY pnpm run
+deploy ``` For local dev, `wrangler dev` reads `API_KEY` from `.dev.vars`. ##
+Resource configuration The resource config in `src/index.ts` defines which
+database columns are exposed via the API (`selectableFields`,
+`filterableFields`, `sortableFields`, `searchableFields`). If you did not use
+`--auto-discover`, only the `id` column is configured per table. Edit
+`src/index.ts` to add the remaining columns, or re-run the CLI with
+`--auto-discover` to introspect your schema automatically. ## Configure
+React-Admin ```ts import { createD1DataProvider } from "ra-cloudflare-d1"; const
+dataProvider = createD1DataProvider({ apiUrl: "https://YOUR_WORKER_URL/api", //
+This runs in the browser: provide the API key via your bundler env (e.g.
+import.meta.env.VITE_API_KEY). apiKey: import.meta.env.VITE_API_KEY }); ``` >
+**Security note:** The API key is sent from the browser and is therefore >
+public. It deters casual traffic but is not a true secret. For production, >
+consider putting the Worker behind Cloudflare Access or another auth layer.

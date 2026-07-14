@@ -1,0 +1,10 @@
+import { createD1RestApi } from "d1-rest-worker"; const resources =
+{{{resourcesJson}}}; function parseCors(origins: unknown): string[] | "*" { if
+(!origins) return "*"; if (origins === "*") return "*"; if (typeof origins !==
+"string") return "*"; const parts = origins .split(",") .map((s) => s.trim())
+.filter(Boolean); return parts.length ? parts : "*"; } export default {
+fetch(request: Request, env: any, ctx: ExecutionContext) { if (!env?.API_KEY) {
+return new Response("Missing API_KEY. Set it via `wrangler secret put API_KEY`
+(and `.dev.vars` for local dev).", { status: 500 }); } return createD1RestApi({
+apiKey: env.API_KEY, corsOrigins: parseCors(env.CORS_ORIGINS), resources
+}).fetch(request, env, ctx); } };
