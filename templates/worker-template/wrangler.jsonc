@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "d1-rest-worker-template",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-01-19",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      // Replace with your real D1 database id from `wrangler d1 create`.
+      "database_id": "REPLACE_ME",
+    },
+  ],
+  "vars": {
+    "CORS_ORIGINS": "*",
+    "RESOURCE_CONFIG": "{}",
+  },
+}

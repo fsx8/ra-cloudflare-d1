@@ -1,0 +1,21 @@
+{
+  "name": "d1-rest-worker-template",
+  "description": "Deploy a D1 REST API Worker (React-Admin Simple REST compatible)",
+  "repository": "https://github.com/fsx8/ra-cloudflare-d1",
+  "logo": "",
+  "keywords": ["cloudflare", "workers", "d1", "react-admin", "rest"],
+  "env": {
+    "API_KEY": {
+      "description": "Bearer token used to secure the API",
+      "required": true
+    },
+    "CORS_ORIGINS": {
+      "description": "Comma-separated allowed origins or '*'",
+      "required": false
+    },
+    "RESOURCE_CONFIG": {
+      "description": "JSON object mapping resources to table configs",
+      "required": true
+    }
+  }
+}
