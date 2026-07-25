@@ -1,6 +1,6 @@
 {
   "name": "@ra-cloudflare-d1/types",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "type": "module",
   "license": "MIT",
