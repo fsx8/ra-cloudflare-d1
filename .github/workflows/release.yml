@@ -32,11 +32,17 @@ jobs:
       # Publish ONLY when the Version Packages PR is merged into main. The
       # commit message carries the signal: a merge commit references the
       # `changeset-release/main` branch; a squash commit is titled
-      # "Version Packages". Both merge styles are covered.
-      - name: Build & publish (only on a Version Packages merge)
+      # "Version Packages". Both merge styles are covered. The same step then
+      # creates a GitHub Release (tag + curated notes aggregated from the
+      # packages' CHANGELOG.md by scripts/release-notes.mjs).
+      - name: Build, publish & tag release (only on a Version Packages merge)
         if: steps.cs.outputs.hasChangesets == 'false' && (contains(github.event.head_commit.message, 'changeset-release/main') || contains(github.event.head_commit.message, 'Version Packages'))
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm build
           pnpm -r --filter ./packages/** publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          tag=$(node scripts/release-notes.mjs tag)
+          node scripts/release-notes.mjs body > /tmp/release-notes.md
+          gh release create "$tag" --title "$tag" --notes-file /tmp/release-notes.md --target "$GITHUB_SHA"
