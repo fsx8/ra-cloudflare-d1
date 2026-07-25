@@ -1,0 +1,18 @@
+name: Deprecate (one-off)
+
+# Temporary workflow to deprecate the orphaned @ra-cloudflare-d1/types package
+# (renamed to rest-worker-types). Triggered manually, then this file is removed.
+on:
+  workflow_dispatch:
+
+jobs:
+  deprecate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm deprecate "@ra-cloudflare-d1/types" "Renamed to rest-worker-types. See https://github.com/fsx8/ra-edge-sqlite"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
