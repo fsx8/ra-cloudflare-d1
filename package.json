@@ -1,7 +1,7 @@
 {
   "name": "ra-cloudflare-d1",
   "private": true,
-  "packageManager": "pnpm@11.12.0",
+  "packageManager": "pnpm@11.17.0",
   "workspaces": [
     "packages/*",
     "templates/*",
