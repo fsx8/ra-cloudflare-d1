@@ -21,12 +21,22 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - name: Create Release PR or Publish
+      # No `publish:` here -> the action only ever opens the "Version Packages"
+      # PR when changesets are pending. Publishing is gated below so routine
+      # pushes don't run a no-op `pnpm publish`.
+      - name: Open Version PR (when changesets are pending)
+        id: cs
         uses: changesets/action@v1
-        with:
-          publish: pnpm -r --filter ./packages/** publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Publish ONLY when the Version Packages PR is merged into main. The
+      # commit message carries the signal: a merge commit references the
+      # `changeset-release/main` branch; a squash commit is titled
+      # "Version Packages". Both merge styles are covered.
+      - name: Build & publish (only on a Version Packages merge)
+        if: steps.cs.outputs.hasChangesets == 'false' && (contains(github.event.head_commit.message, 'changeset-release/main') || contains(github.event.head_commit.message, 'Version Packages'))
+        run: |
+          pnpm build
+          pnpm -r --filter ./packages/** publish
+        env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
