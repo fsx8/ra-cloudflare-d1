@@ -31,8 +31,10 @@ export const dataProvider = createD1DataProvider({
 
 > **Security note:** The `apiKey` is sent from the browser in the
 > `Authorization: Bearer` header. Any value embedded in client-side code is
-> retrievable by visitors, so treat it as a **public** credential — it deters
-> casual traffic and cross-origin abuse but is **not** a true secret. For a
-> production admin, put the Worker behind a proper authentication layer
-> (Cloudflare Access, JWT validation, etc.) instead of relying solely on the
-> shared bearer key.
+> retrievable by visitors, so treat it as a **public** credential, not a
+> secret. To limit exposure, configure `corsOrigins` on the Worker with your
+> admin panel's exact origin(s) instead of `"*"` — browsers block cross-origin
+> requests because every API call is preflighted (the `Authorization` header
+> triggers it). This stops other websites from abusing the key but does **not**
+> prevent server-side use (curl, scripts). For a production admin, put the
+> Worker behind Cloudflare Access or JWT validation.

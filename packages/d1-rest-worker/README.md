@@ -9,7 +9,7 @@ export default {
   fetch(request, env, ctx) {
     return createD1RestApi({
       apiKey: env.API_KEY,
-      corsOrigins: "*",
+      corsOrigins: ["https://admin.example.com"], // whitelist your admin UI
       resources: {
         posts: {
           tableName: "posts",

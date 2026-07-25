@@ -5,7 +5,7 @@
 `createD1RestApi(config)` accepts:
 
 - `apiKey`: Bearer token required for all requests
-- `corsOrigins`: `'*'` or array of allowed origins
+- `corsOrigins`: `'*'` or array of allowed origins — **use a whitelist** (`['https://admin.example.com']`) in production so browsers block cross-origin requests; `'*'` is fine for local dev only
 - `basePath`: optional base path (default `/api`)
 - `enableSchemaEndpoint`: defaults to `true`
 - `maxPerPage`: optional cap on the number of rows returned by a list request (default `1000`). Protects the worker from materializing huge result sets; ranges beyond this are clamped.

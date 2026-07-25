@@ -61,12 +61,14 @@ export const dataProvider = createD1DataProvider({
 That's it — `getList`, `getOne`, `getMany`, `create`, `update`, `delete`, and
 their `*Many`/bulk variants are all supported.
 
-> **Security:** The `apiKey` is sent from the browser in the `Authorization:
-Bearer` header. Any value embedded in client-side code is retrievable by
-> visitors, so treat it as a **public** credential — it deters casual traffic and
-> cross-origin abuse but is **not** a true secret. For a production admin, put
-> the Worker behind a real authentication layer (Cloudflare Access, JWT
-> validation, etc.). See [docs/quick-start.md](docs/quick-start.md).
+> **Security:** The `apiKey` is sent from the browser and is retrievable by
+> visitors — treat it as a **public** credential, not a secret. To limit
+> exposure, set `corsOrigins` to your admin panel's exact origin(s) instead of
+> `"*"`; browsers will block cross-origin requests because every API call is
+> preflighted (the `Authorization` header triggers it). This stops other
+> websites from abusing the key but does **not** prevent server-side use (curl,
+> scripts). For production, put the Worker behind Cloudflare Access or JWT
+> validation. See [docs/quick-start.md](docs/quick-start.md).
 
 ## Features
 
@@ -98,7 +100,7 @@ export default {
   async fetch(request, env, ctx) {
     return createD1RestApi({
       apiKey: env.API_KEY,
-      corsOrigins: "*",
+      corsOrigins: ["https://admin.example.com"], // whitelist your admin UI
       resources: {
         posts: {
           tableName: "posts",

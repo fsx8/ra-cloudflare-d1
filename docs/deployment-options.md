@@ -32,7 +32,7 @@ export default {
   fetch(request, env, ctx) {
     return createD1RestApi({
       apiKey: env.API_KEY,
-      corsOrigins: "*",
+      corsOrigins: ["https://admin.example.com"],
       resources: {
         posts: {
           tableName: "posts",
