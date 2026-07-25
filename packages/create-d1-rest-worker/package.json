@@ -1,6 +1,6 @@
 {
   "name": "create-d1-rest-worker",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "private": false,
   "type": "module",
   "license": "MIT",
