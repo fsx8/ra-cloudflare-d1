@@ -10,6 +10,7 @@ export default {
     return createD1RestApi({
       apiKey: env.API_KEY,
       corsOrigins: ["https://admin.example.com"], // whitelist your admin UI
+      // rateLimit: { binding: env.API_RATE_LIMITER }, // optional, needs wrangler binding
       resources: {
         posts: {
           tableName: "posts",

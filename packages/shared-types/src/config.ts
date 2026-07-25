@@ -20,6 +20,15 @@ export interface ResourceConfig {
   transforms?: ResourceFieldTransformConfig;
 }
 
+export interface RateLimitBinding {
+  limit(options: { key: string }): Promise<{ success: boolean }>;
+}
+
+export interface RateLimitConfig {
+  binding: RateLimitBinding;
+  key?: (request: Request) => string;
+}
+
 export interface D1RestConfig {
   resources: Record<string, ResourceConfig>;
   apiKey: string;
@@ -27,6 +36,7 @@ export interface D1RestConfig {
   basePath?: string;
   enableSchemaEndpoint?: boolean;
   maxPerPage?: number;
+  rateLimit?: RateLimitConfig;
 }
 
 export interface SchemaFieldInfo {

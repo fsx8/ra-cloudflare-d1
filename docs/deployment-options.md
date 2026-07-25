@@ -22,6 +22,7 @@ Use `templates/worker-template` as a starting point. Configure:
 - `API_KEY` (Bearer token, set as a Wrangler secret)
 - `CORS_ORIGINS`
 - `RESOURCE_CONFIG` JSON
+- Optional: uncomment the `ratelimits` binding in `wrangler.jsonc` to enable rate limiting
 
 ## Option C: Manual Worker setup
 

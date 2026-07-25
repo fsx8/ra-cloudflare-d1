@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { Hono } from "hono";
+import type { RateLimitBinding } from "@ra-cloudflare-d1/types";
 import { authMiddleware } from "../src/middleware/auth";
 import { corsMiddleware } from "../src/middleware/cors";
+import { rateLimitMiddleware } from "../src/middleware/rateLimit";
 import { ApiError, handleError } from "../src/middleware/errors";
 
 async function parseJson(res: Response): Promise<unknown> {
@@ -19,6 +21,25 @@ function authApp(apiKey: string) {
 function corsApp(corsOrigins: string[] | "*") {
   const app = new Hono();
   app.use("*", corsMiddleware({ corsOrigins }));
+  app.get("/test", (c) => c.json({ ok: true }));
+  return app;
+}
+
+function mockRateLimit(success: boolean, keys?: string[]): RateLimitBinding {
+  return {
+    limit({ key }) {
+      keys?.push(key);
+      return Promise.resolve({ success });
+    },
+  };
+}
+
+function rateLimitApp(
+  binding: RateLimitBinding,
+  keyFn?: (req: Request) => string,
+) {
+  const app = new Hono();
+  app.use("*", rateLimitMiddleware({ binding, key: keyFn }));
   app.get("/test", (c) => c.json({ ok: true }));
   return app;
 }
@@ -144,6 +165,61 @@ describe("middleware", () => {
       expect(res.headers.get("Access-Control-Allow-Origin")).toBe(
         "https://allowed.com",
       );
+    });
+  });
+
+  describe("rateLimitMiddleware", () => {
+    it("allows requests when under the limit", async () => {
+      const app = rateLimitApp(mockRateLimit(true));
+      const res = await app.request("/test", {
+        headers: { Authorization: "Bearer secret" },
+      });
+      expect(res.status).toBe(200);
+      expect(((await parseJson(res)) as { ok: boolean }).ok).toBe(true);
+    });
+
+    it("returns 429 when rate limit exceeded", async () => {
+      const app = rateLimitApp(mockRateLimit(false));
+      const res = await app.request("/test", {
+        headers: { Authorization: "Bearer secret" },
+      });
+      expect(res.status).toBe(429);
+      const body = (await parseJson(res)) as { error: { code: string } };
+      expect(body.error.code).toBe("RATE_LIMITED");
+    });
+
+    it("uses Bearer token as the default key", async () => {
+      const keys: string[] = [];
+      const app = rateLimitApp(mockRateLimit(true, keys));
+      await app.request("/test", {
+        headers: { Authorization: "Bearer my-secret-key" },
+      });
+      expect(keys).toEqual(["my-secret-key"]);
+    });
+
+    it("falls back to CF-Connecting-IP without Bearer token", async () => {
+      const keys: string[] = [];
+      const app = rateLimitApp(mockRateLimit(true, keys));
+      await app.request("/test", {
+        headers: { "CF-Connecting-IP": "1.2.3.4" },
+      });
+      expect(keys).toEqual(["1.2.3.4"]);
+    });
+
+    it("uses anonymous when no Bearer token or IP", async () => {
+      const keys: string[] = [];
+      const app = rateLimitApp(mockRateLimit(true, keys));
+      await app.request("/test");
+      expect(keys).toEqual(["anonymous"]);
+    });
+
+    it("uses custom key function when provided", async () => {
+      const keys: string[] = [];
+      const app = rateLimitApp(mockRateLimit(true, keys), (req) =>
+        req.headers.get("X-Tenant") ? "tenant" : "default",
+      );
+      await app.request("/test", { headers: { "X-Tenant": "acme" } });
+      expect(keys).toEqual(["tenant"]);
     });
   });
 

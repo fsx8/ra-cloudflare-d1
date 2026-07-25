@@ -38,6 +38,9 @@ export default {
     return createD1RestApi({
       apiKey: env.API_KEY,
       corsOrigins: parseCors(env.CORS_ORIGINS),
+      ...(env.API_RATE_LIMITER
+        ? { rateLimit: { binding: env.API_RATE_LIMITER } }
+        : {}),
       resources,
     }).fetch(request, env, ctx);
   },

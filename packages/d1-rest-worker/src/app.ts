@@ -3,6 +3,7 @@ import type { D1RestConfig } from "@ra-cloudflare-d1/types";
 import { authMiddleware } from "./middleware/auth.js";
 import { corsMiddleware } from "./middleware/cors.js";
 import { handleError } from "./middleware/errors.js";
+import { rateLimitMiddleware } from "./middleware/rateLimit.js";
 import { bulkDeleteRoute } from "./routes/bulkDelete.js";
 import { bulkUpdateRoute } from "./routes/bulkUpdate.js";
 import { createRoute } from "./routes/create.js";
@@ -16,6 +17,9 @@ export function createApp(config: D1RestConfig, dbBinding = "DB") {
   const app = new Hono();
   app.onError((err, c) => handleError(err, c));
   app.use("*", corsMiddleware(config));
+  if (config.rateLimit) {
+    app.use("*", rateLimitMiddleware(config.rateLimit));
+  }
   app.use("*", authMiddleware(config.apiKey));
 
   const basePath = config.basePath ?? "/api";

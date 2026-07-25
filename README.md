@@ -76,6 +76,8 @@ their `*Many`/bulk variants are all supported.
 - **Allow-list security** — only operator-declared tables/columns are selectable,
   filterable, sortable, or searchable; all identifiers are validated and values
   are SQL-parameterized.
+- **Optional rate limiting** — Cloudflare's native Rate Limiting binding, zero
+  latency, works on the Free plan. Defaults to per-API-key limits.
 - **Pagination, filtering & sorting** — inclusive range pagination with a
   configurable `maxPerPage` cap; operator suffixes (`_gt`, `_gte`, `_lt`,
   `_lte`, `_contains`, `_startsWith`, `_endsWith`), `IN` arrays, and `q`
@@ -101,6 +103,7 @@ export default {
     return createD1RestApi({
       apiKey: env.API_KEY,
       corsOrigins: ["https://admin.example.com"], // whitelist your admin UI
+      // rateLimit: { binding: env.API_RATE_LIMITER }, // optional, needs wrangler binding
       resources: {
         posts: {
           tableName: "posts",
@@ -123,7 +126,7 @@ The default D1 binding name is `"DB"`; override it with the second argument:
 
 - [Quick start](docs/quick-start.md)
 - [Deployment options](docs/deployment-options.md) — CLI, template, or manual
-- [Configuration reference](docs/configuration-reference.md) — worker & provider config, bulk-operation semantics
+- [Configuration reference](docs/configuration-reference.md) — worker & provider config, rate limiting, bulk-operation semantics
 - [Filter operators](docs/filter-operators.md)
 - [Soft delete](docs/soft-delete.md)
 - [Migration guide](docs/migration-guide.md) — coming from `ra-data-simple-rest`
