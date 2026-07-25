@@ -1,5 +1,5 @@
 import { HttpError } from "ra-core";
-import type { ApiErrorResponse } from "@ra-cloudflare-d1/types";
+import type { ApiErrorResponse } from "rest-worker-types";
 
 export interface HttpClientOptions {
   apiKey: string;

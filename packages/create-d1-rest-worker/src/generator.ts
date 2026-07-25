@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import Handlebars from "handlebars";
-import type { ResourceConfig } from "@ra-cloudflare-d1/types";
+import type { ResourceConfig } from "rest-worker-types";
 
 async function readTemplate(rel: string) {
   const url = new URL(`../templates/${rel}`, import.meta.url);

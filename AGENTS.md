@@ -11,17 +11,24 @@ Repo-specific guidance for OpenCode sessions. Verify against current code before
 
 ## Workspace layout
 
-Four published packages under `packages/`; everything else is private. Package directory names do not match npm names — use the npm names when filtering.
+Seven published packages under `packages/`; everything else is private. Package directory names do not match npm names — use the npm names when filtering.
 
-| dir                              | npm name                  | role                                                    |
-| -------------------------------- | ------------------------- | ------------------------------------------------------- |
-| `packages/shared-types`          | `@ra-cloudflare-d1/types` | types-only, depended on by all others (no runtime code) |
-| `packages/d1-rest-worker`        | `d1-rest-worker`          | Cloudflare Worker (Hono) exposing the REST API          |
-| `packages/ra-cloudflare-d1`      | `ra-cloudflare-d1`        | react-admin data provider; peer-depends on `ra-core`    |
-| `packages/create-d1-rest-worker` | `create-d1-rest-worker`   | CLI scaffolder (commander/handlebars/inquirer)          |
+The REST dialect, SQL building, and HTTP layer are database-agnostic and live in `core-rest-worker`. Each database backend is a thin adapter over the core (`RestWorkerDb` interface in `core-rest-worker/src/db.ts`). Both backends speak the same Simple-REST dialect, so there is a single provider implementation (`ra-cloudflare-d1`) which `ra-turso` re-exports under Turso-branded names.
+
+| dir                                 | npm name                   | role                                                                                                                               |
+| ----------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/shared-types`             | `rest-worker-types`        | types-only (config/query/response), depended on by all others (no runtime code)                                                    |
+| `packages/core-rest-worker`         | `core-rest-worker`         | DB-agnostic engine: SQL builder, middleware, routes, `createRestApp(config, { adapter })`, and the `RestWorkerDb` adapter contract |
+| `packages/d1-rest-worker`           | `d1-rest-worker`           | thin D1 adapter + `createD1RestApi(config, opts?)` wrapping core (default binding `"DB"`)                                          |
+| `packages/turso-rest-worker`        | `turso-rest-worker`        | thin libSQL/Turso adapter + `createTursoRestApi(config, { url, authToken })` wrapping core                                         |
+| `packages/ra-cloudflare-d1`         | `ra-cloudflare-d1`         | react-admin data provider (source of truth); peer-depends on `ra-core`                                                             |
+| `packages/ra-turso`                 | `ra-turso`                 | react-admin data provider; aliased re-export of `ra-cloudflare-d1` (`createTursoDataProvider`)                                     |
+| `packages/create-d1-rest-worker`    | `create-d1-rest-worker`    | CLI scaffolder (commander/handlebars/inquirer). Auto-discovers schema via the Cloudflare D1 API.                                   |
+| `packages/create-turso-rest-worker` | `create-turso-rest-worker` | CLI scaffolder (commander/handlebars/inquirer). Auto-discovers schema by querying Turso directly over libSQL.                      |
 
 - `templates/worker-template` and `examples/{basic,advanced}-admin/{admin,worker}` are private workspace projects used by the CLI and for manual validation; not published.
-- Public entrypoints: `createD1RestApi(config, opts?)` from `d1-rest-worker` (returns `{ fetch }`; default D1 binding name is `"DB"`, override via 2nd arg), and `createD1DataProvider({ apiUrl, apiKey })` from `ra-cloudflare-d1`.
+- Public entrypoints: `createD1RestApi(config, opts?)` and `createTursoRestApi(config, opts)` from their worker packages (both return `{ fetch }`); `createD1DataProvider({ apiUrl, apiKey })` from `ra-cloudflare-d1` / `createTursoDataProvider(...)` from `ra-turso`.
+- The core adapter contract: `RestWorkerDb { execute(sql, params): Promise<ExecResult>; executeMany(stmts): Promise<ExecResult[]> }` where `ExecResult = { rows: Record<string, unknown>[]; changes: number }`. To add a backend, implement this interface and call `createRestApp(config, { adapter })` — see `packages/d1-rest-worker/src/adapter.ts` and `packages/turso-rest-worker/src/adapter.ts` as references.
 
 ## Commands
 

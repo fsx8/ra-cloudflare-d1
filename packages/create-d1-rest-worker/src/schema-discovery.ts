@@ -1,4 +1,4 @@
-import type { ResourceConfig } from "@ra-cloudflare-d1/types";
+import type { ResourceConfig } from "rest-worker-types";
 import { CloudflareApiClient } from "./cloudflare-api.js";
 import type { CloudflareAnswers } from "./prompts.js";
 
@@ -49,6 +49,31 @@ function inferSoftDelete(columns: PragmaTableInfoRow[]) {
   return undefined;
 }
 
+export function buildResource(
+  tableName: string,
+  columns: PragmaTableInfoRow[],
+): ResourceConfig {
+  const pk = columns.find((c) => c.pk === 1)?.name ?? "id";
+  const selectable = columns.map((c) => c.name);
+  const searchable = columns
+    .filter((c) => c.type.toUpperCase().includes("TEXT"))
+    .map((c) => c.name);
+  const transforms = inferTransforms(columns);
+  return {
+    tableName,
+    idField: pk,
+    selectableFields: selectable,
+    filterableFields: selectable,
+    sortableFields: selectable,
+    searchableFields: searchable,
+    softDelete: inferSoftDelete(columns),
+    transforms: {
+      booleans: transforms.booleans,
+      dates: transforms.dates,
+    },
+  };
+}
+
 export async function discoverSchema(cf: CloudflareAnswers) {
   const client = new CloudflareApiClient({
     accountId: cf.accountId,
@@ -66,26 +91,7 @@ export async function discoverSchema(cf: CloudflareAnswers) {
       cf.databaseId,
       `PRAGMA table_info(${validateIdentifier(t.name, "table")});`,
     );
-    const pk = columns.find((c) => c.pk === 1)?.name ?? "id";
-    const selectable = columns.map((c) => c.name);
-    const searchable = columns
-      .filter((c) => c.type.toUpperCase().includes("TEXT"))
-      .map((c) => c.name);
-    const transforms = inferTransforms(columns);
-
-    resources[t.name] = {
-      tableName: t.name,
-      idField: pk,
-      selectableFields: selectable,
-      filterableFields: selectable,
-      sortableFields: selectable,
-      searchableFields: searchable,
-      softDelete: inferSoftDelete(columns),
-      transforms: {
-        booleans: transforms.booleans,
-        dates: transforms.dates,
-      },
-    };
+    resources[t.name] = buildResource(t.name, columns);
   }
 
   return {

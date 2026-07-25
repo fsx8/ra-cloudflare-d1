@@ -1,0 +1,16 @@
+import { createTursoRestApi } from "turso-rest-worker"; const resources =
+{{{resourcesJson}}}; function parseCors(origins: unknown): string[] | "*" { if
+(!origins) return "*"; if (origins === "*") return "*"; if (typeof origins !==
+"string") return "*"; const parts = origins .split(",") .map((s) => s.trim())
+.filter(Boolean); return parts.length ? parts : "*"; } export default {
+fetch(request: Request, env: any, ctx: ExecutionContext) { if (!env?.API_KEY) {
+return new Response( "Missing API_KEY. Set it via `wrangler secret put API_KEY`
+(and `.dev.vars` for local dev).", { status: 500 }, ); } if
+(!env?.TURSO_CONNECTION_URL || !env?.TURSO_AUTH_TOKEN) { return new Response(
+"Missing Turso credentials. Put TURSO_CONNECTION_URL in wrangler.jsonc vars and
+set TURSO_AUTH_TOKEN via `wrangler secret put TURSO_AUTH_TOKEN` (and `.dev.vars`
+for local dev).", { status: 500 }, ); } return createTursoRestApi( { apiKey:
+env.API_KEY, corsOrigins: parseCors(env.CORS_ORIGINS), ...(env.API_RATE_LIMITER
+? { rateLimit: { binding: env.API_RATE_LIMITER } } : {}), resources, }, { url:
+env.TURSO_CONNECTION_URL, authToken: env.TURSO_AUTH_TOKEN }, ).fetch(request,
+env, ctx); }, };

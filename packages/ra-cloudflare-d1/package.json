@@ -6,12 +6,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fsx8/ra-cloudflare-d1.git",
+    "url": "https://github.com/fsx8/ra-edge-sqlite.git",
     "directory": "packages/ra-cloudflare-d1"
   },
-  "homepage": "https://github.com/fsx8/ra-cloudflare-d1#readme",
+  "homepage": "https://github.com/fsx8/ra-edge-sqlite#readme",
   "bugs": {
-    "url": "https://github.com/fsx8/ra-cloudflare-d1/issues"
+    "url": "https://github.com/fsx8/ra-edge-sqlite/issues"
   },
   "exports": {
     ".": {
@@ -33,7 +33,7 @@
     "ra-core": ">=4"
   },
   "dependencies": {
-    "@ra-cloudflare-d1/types": "workspace:*"
+    "rest-worker-types": "workspace:*"
   },
   "devDependencies": {
     "ra-core": "^5.15.0",

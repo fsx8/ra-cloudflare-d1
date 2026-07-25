@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { D1RestConfig } from "@ra-cloudflare-d1/types";
+import type { RestWorkerConfig } from "rest-worker-types";
 import { createApp } from "../src/app";
 import {
   makeFakeDb,
@@ -15,7 +15,7 @@ async function parseJson(res: Response): Promise<unknown> {
   return res.json();
 }
 
-function makeConfig(overrides?: Partial<D1RestConfig>): D1RestConfig {
+function makeConfig(overrides?: Partial<RestWorkerConfig>): RestWorkerConfig {
   return {
     apiKey: API_KEY,
     corsOrigins: "*",
@@ -34,7 +34,7 @@ function makeConfig(overrides?: Partial<D1RestConfig>): D1RestConfig {
 }
 
 function setup(opts?: {
-  config?: Partial<D1RestConfig>;
+  config?: Partial<RestWorkerConfig>;
   prepareHandler?: PrepareHandler;
   batchHandler?: BatchHandler;
 }) {
@@ -101,7 +101,7 @@ describe("routes", () => {
     });
 
     it("applies soft-delete filter", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",
@@ -161,7 +161,7 @@ describe("routes", () => {
     });
 
     it("excludes soft-deleted records", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",
@@ -184,7 +184,7 @@ describe("routes", () => {
     });
 
     it("includes soft-deleted records with includeDeleted=true", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",
@@ -267,7 +267,7 @@ describe("routes", () => {
     });
 
     it("accepts a client-supplied primary key", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",
@@ -359,7 +359,7 @@ describe("routes", () => {
     });
 
     it("applies soft-delete guard", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",
@@ -424,7 +424,7 @@ describe("routes", () => {
     });
 
     it("soft-deletes when configured", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",
@@ -454,7 +454,7 @@ describe("routes", () => {
     });
 
     it("soft-deletes with boolean field", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",
@@ -554,7 +554,7 @@ describe("routes", () => {
     });
 
     it("applies soft-delete guard", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",
@@ -642,7 +642,7 @@ describe("routes", () => {
     });
 
     it("soft-deletes when configured", async () => {
-      const config: Partial<D1RestConfig> = {
+      const config: Partial<RestWorkerConfig> = {
         resources: {
           posts: {
             tableName: "posts",

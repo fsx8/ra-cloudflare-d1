@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
   "changelog": [
     "@changesets/changelog-github",
-    { "repo": "fsx8/ra-cloudflare-d1" }
+    { "repo": "fsx8/ra-edge-sqlite" }
   ],
   "commit": false,
   "fixed": [],

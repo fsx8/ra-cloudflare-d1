@@ -6,5 +6,6 @@ import { createD1RestApi } from "d1-rest-worker"; const resources =
 fetch(request: Request, env: any, ctx: ExecutionContext) { if (!env?.API_KEY) {
 return new Response("Missing API_KEY. Set it via `wrangler secret put API_KEY`
 (and `.dev.vars` for local dev).", { status: 500 }); } return createD1RestApi({
-apiKey: env.API_KEY, corsOrigins: parseCors(env.CORS_ORIGINS), ...(env.API_RATE_LIMITER ? { rateLimit: { binding: env.API_RATE_LIMITER } } : {}), resources
-}).fetch(request, env, ctx); } };
+apiKey: env.API_KEY, corsOrigins: parseCors(env.CORS_ORIGINS),
+...(env.API_RATE_LIMITER ? { rateLimit: { binding: env.API_RATE_LIMITER } } :
+{}), resources }).fetch(request, env, ctx); } };

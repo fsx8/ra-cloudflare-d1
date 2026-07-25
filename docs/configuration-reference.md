@@ -74,9 +74,9 @@ It is available on all plans (including Free) and adds zero latency.
     {
       "name": "API_RATE_LIMITER",
       "namespace_id": "1001",
-      "simple": { "limit": 100, "period": 60 }
-    }
-  ]
+      "simple": { "limit": 100, "period": 60 },
+    },
+  ],
 }
 ```
 
@@ -90,7 +90,7 @@ createD1RestApi({
   apiKey: env.API_KEY,
   corsOrigins: ["https://admin.example.com"],
   rateLimit: { binding: env.API_RATE_LIMITER },
-  resources: { /* ... */ },
+  resources: {/* ... */},
 });
 ```
 

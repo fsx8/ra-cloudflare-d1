@@ -6,12 +6,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fsx8/ra-cloudflare-d1.git",
+    "url": "https://github.com/fsx8/ra-edge-sqlite.git",
     "directory": "packages/create-d1-rest-worker"
   },
-  "homepage": "https://github.com/fsx8/ra-cloudflare-d1#readme",
+  "homepage": "https://github.com/fsx8/ra-edge-sqlite#readme",
   "bugs": {
-    "url": "https://github.com/fsx8/ra-cloudflare-d1/issues"
+    "url": "https://github.com/fsx8/ra-edge-sqlite/issues"
   },
   "bin": {
     "create-d1-rest-worker": "./dist/index.js"
@@ -28,7 +28,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@ra-cloudflare-d1/types": "workspace:*",
+    "rest-worker-types": "workspace:*",
     "commander": "^15.0.0",
     "handlebars": "^4.7.9",
     "inquirer": "^14.0.2"

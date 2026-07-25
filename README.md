@@ -1,29 +1,38 @@
-# ra-cloudflare-d1
+# ra-edge-sqlite
 
-[![CI](https://github.com/fsx8/ra-cloudflare-d1/actions/workflows/ci.yml/badge.svg)](https://github.com/fsx8/ra-cloudflare-d1/actions/workflows/ci.yml)
+[![CI](https://github.com/fsx8/ra-edge-sqlite/actions/workflows/ci.yml/badge.svg)](https://github.com/fsx8/ra-edge-sqlite/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/ra-cloudflare-d1?label=ra-cloudflare-d1)](https://www.npmjs.com/package/ra-cloudflare-d1)
+[![npm](https://img.shields.io/npm/v/ra-turso?label=ra-turso)](https://www.npmjs.com/package/ra-turso)
 [![npm](https://img.shields.io/npm/v/d1-rest-worker?label=d1-rest-worker)](https://www.npmjs.com/package/d1-rest-worker)
+[![npm](https://img.shields.io/npm/v/turso-rest-worker?label=turso-rest-worker)](https://www.npmjs.com/package/turso-rest-worker)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-A [React-Admin](https://marmelab.com/react-admin/) data provider backed by
-[Cloudflare D1](https://developers.cloudflare.com/d1/), powered by a thin REST
-Worker. Ship a full admin CRUD experience over your D1 database in minutes —
-pagination, filtering, sorting, search, soft delete, bulk operations, and field
-transforms, all behind a configurable allow-list.
+[React-Admin](https://marmelab.com/react-admin/) data providers backed by
+**[Cloudflare D1](https://developers.cloudflare.com/d1/)** and
+**[Turso](https://turso.tech) (libSQL)**, each powered by a thin REST Worker.
+Ship a full admin CRUD experience over either database in minutes — pagination,
+filtering, sorting, search, soft delete, bulk operations, and field transforms,
+all behind a configurable allow-list.
 
-It is a **Simple REST** dialect provider, so it drops in anywhere
-`ra-data-simple-rest` would, but is purpose-built for D1.
+Both backends are Simple-REST dialect providers, so they drop in anywhere
+`ra-data-simple-rest` would. They share one engine
+([`core-rest-worker`](https://www.npmjs.com/package/core-rest-worker)) and one
+provider implementation, so behavior is identical and maintenance is shared.
 
 ## How it fits together
 
-Two pieces work as a pair:
+Each database has a Worker + provider pair:
 
-| Package                                                                        | What it is                                                                                       | Install                     |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | --------------------------- |
-| [`d1-rest-worker`](https://www.npmjs.com/package/d1-rest-worker)               | A Cloudflare Worker (Hono) exposing the REST API over your D1 database.                          | `pnpm add d1-rest-worker`   |
-| [`ra-cloudflare-d1`](https://www.npmjs.com/package/ra-cloudflare-d1)           | The React-Admin data provider that talks to that Worker.                                         | `pnpm add ra-cloudflare-d1` |
-| [`create-d1-rest-worker`](https://www.npmjs.com/package/create-d1-rest-worker) | An interactive CLI that scaffolds a ready-to-deploy Worker, with optional schema auto-discovery. | `npx create-d1-rest-worker` |
-| `@ra-cloudflare-d1/types`                                                      | Shared TypeScript types consumed by the other packages.                                          | (internal)                  |
+| Package                                                                              | What it is                                                                                          |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| [`d1-rest-worker`](https://www.npmjs.com/package/d1-rest-worker)                     | Cloudflare Worker (Hono) exposing the REST API over your **D1** database.                           |
+| [`ra-cloudflare-d1`](https://www.npmjs.com/package/ra-cloudflare-d1)                 | React-Admin data provider that talks to the D1 Worker.                                              |
+| [`turso-rest-worker`](https://www.npmjs.com/package/turso-rest-worker)               | Cloudflare Worker (Hono) exposing the REST API over your **Turso** database.                        |
+| [`ra-turso`](https://www.npmjs.com/package/ra-turso)                                 | React-Admin data provider that talks to the Turso Worker.                                           |
+| [`create-d1-rest-worker`](https://www.npmjs.com/package/create-d1-rest-worker)       | Interactive CLI that scaffolds a ready-to-deploy D1 Worker, with optional schema auto-discovery.    |
+| [`create-turso-rest-worker`](https://www.npmjs.com/package/create-turso-rest-worker) | Interactive CLI that scaffolds a ready-to-deploy Turso Worker, with optional schema auto-discovery. |
+| [`core-rest-worker`](https://www.npmjs.com/package/core-rest-worker)                 | The shared, DB-agnostic engine + the `RestWorkerDb` adapter contract (for adding other backends).   |
+| `rest-worker-types`                                                                  | Shared TypeScript types consumed by the other packages. (internal)                                  |
 
 ## Quick start
 
@@ -61,6 +70,50 @@ export const dataProvider = createD1DataProvider({
 That's it — `getList`, `getOne`, `getMany`, `create`, `update`, `delete`, and
 their `*Many`/bulk variants are all supported.
 
+## Quick start — Turso
+
+Prefer Turso? Scaffold a Worker with the CLI (mirrors the D1 flow, and
+introspects your schema by querying Turso over libSQL):
+
+```bash
+npx create-turso-rest-worker --auto-discover
+cd turso-rest-worker
+pnpm install
+pnpm exec wrangler secret put API_KEY
+pnpm exec wrangler secret put TURSO_AUTH_TOKEN
+pnpm run deploy
+```
+
+Or write the Worker by hand — it takes your database URL and auth token directly:
+
+```ts
+import { createTursoRestApi } from "turso-rest-worker";
+
+export default {
+  async fetch(request, env) {
+    return createTursoRestApi(
+      {
+        apiKey: env.API_KEY,
+        corsOrigins: ["https://admin.example.com"],
+        resources: {/* same shape as the D1 example below */},
+      },
+      { url: env.TURSO_CONNECTION_URL, authToken: env.TURSO_AUTH_TOKEN },
+    ).fetch(request);
+  },
+};
+```
+
+On the client:
+
+```ts
+import { createTursoDataProvider } from "ra-turso";
+
+export const dataProvider = createTursoDataProvider({
+  apiUrl: "https://YOUR_WORKER_URL/api",
+  apiKey: "sk_...",
+});
+```
+
 > **Security:** The `apiKey` is sent from the browser and is retrievable by
 > visitors — treat it as a **public** credential, not a secret. To limit
 > exposure, set `corsOrigins` to your admin panel's exact origin(s) instead of
@@ -84,8 +137,8 @@ their `*Many`/bulk variants are all supported.
   full-text-ish search.
 - **Soft delete** — timestamp or boolean soft-delete columns, excluded by default
   and includable via `?includeDeleted=true`.
-- **Bulk operations** — `updateMany`/`deleteMany` chunked over D1 `batch`, with a
-  permissive fallback to individual requests.
+- **Bulk operations** — `updateMany`/`deleteMany` chunked over a single batched
+  request, with a permissive fallback to individual requests.
 - **Field transforms** — server-side boolean/date/JSON coercion, optional to
   mirror on the client.
 - **Schema endpoint** — `GET /__schema` introspects configured tables for tooling.
@@ -121,6 +174,27 @@ export default {
 
 The default D1 binding name is `"DB"`; override it with the second argument:
 `createD1RestApi(config, { dbBinding: "MY_DB" })`.
+
+## Limitations & caveats
+
+Both backends are **SQLite-flavored**, but a few engine differences are worth
+knowing:
+
+- **Bulk-operation atomicity differs.** `updateMany`/`deleteMany` run in a
+  single batched request. **D1 batches are not transactional** (partial success
+  is possible); **libSQL/Turso batches run in a transaction** and roll back on
+  failure. Either way the worker falls back to per-statement requests if the
+  batch fails.
+- **Turso integer mode.** The Turso adapter uses the default `intMode: "number"`,
+  so integers come back as JS numbers (matching D1). Configuring `bigint` /
+  `string` modes is not coerced by the adapter.
+- **BLOB columns on Turso.** BLOBs arrive as `ArrayBuffer` / `Uint8Array`, which
+  `JSON.stringify` cannot serialize. The Turso REST path does not normalize them
+  today — avoid BLOB columns in exposed resources, or pre-serialize them. (D1
+  returns BLOBs as already-serialized values and is unaffected.)
+- **Public API key.** `apiKey` is sent from the browser and is retrievable by
+  visitors — treat it as public. Restrict `corsOrigins` and, for production, put
+  the Worker behind Cloudflare Access or JWT validation.
 
 ## Documentation
 

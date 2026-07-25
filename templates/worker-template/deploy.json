@@ -1,7 +1,7 @@
 {
   "name": "d1-rest-worker-template",
   "description": "Deploy a D1 REST API Worker (React-Admin Simple REST compatible)",
-  "repository": "https://github.com/fsx8/ra-cloudflare-d1",
+  "repository": "https://github.com/fsx8/ra-edge-sqlite",
   "logo": "",
   "keywords": ["cloudflare", "workers", "d1", "react-admin", "rest"],
   "env": {

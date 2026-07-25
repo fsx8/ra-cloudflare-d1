@@ -4,7 +4,7 @@ import { promptUser } from "./prompts.js";
 import { discoverSchema } from "./schema-discovery.js";
 import { generateProject } from "./generator.js";
 import { generateApiKey } from "./generator/apiKey.js";
-import type { ResourceConfig } from "@ra-cloudflare-d1/types";
+import type { ResourceConfig } from "rest-worker-types";
 
 export async function runCli(argv: string[]) {
   const program = new Command();

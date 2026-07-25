@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { generateProject } from "../src/generator.js";
-import type { ResourceConfig } from "@ra-cloudflare-d1/types";
+import type { ResourceConfig } from "rest-worker-types";
 
 const sampleResources: Record<string, ResourceConfig> = {
   posts: {

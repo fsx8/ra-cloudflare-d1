@@ -29,7 +29,7 @@ export interface RateLimitConfig {
   key?: (request: Request) => string;
 }
 
-export interface D1RestConfig {
+export interface RestWorkerConfig {
   resources: Record<string, ResourceConfig>;
   apiKey: string;
   corsOrigins: string[] | "*";

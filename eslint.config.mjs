@@ -16,8 +16,9 @@ export default tseslint.config(
       "**/coverage/**",
       "**/.turbo/**",
       "**/.wrangler/**",
-      // CLI scaffolder emits these from handlebars templates — not linted.
+      // CLI scaffolders emit these from handlebars templates — not linted.
       "packages/create-d1-rest-worker/templates/**",
+      "packages/create-turso-rest-worker/templates/**",
       // Templates and examples are validation scaffolds / CLI output; not linted.
       "templates/**",
       "examples/**",
@@ -30,9 +31,13 @@ export default tseslint.config(
       parserOptions: {
         project: [
           "packages/shared-types/tsconfig.build.json",
+          "packages/core-rest-worker/tsconfig.typecheck.json",
           "packages/d1-rest-worker/tsconfig.typecheck.json",
+          "packages/turso-rest-worker/tsconfig.typecheck.json",
           "packages/ra-cloudflare-d1/tsconfig.typecheck.json",
+          "packages/ra-turso/tsconfig.typecheck.json",
           "packages/create-d1-rest-worker/tsconfig.typecheck.json",
+          "packages/create-turso-rest-worker/tsconfig.typecheck.json",
         ],
         tsconfigRootDir: import.meta.dirname,
       },
@@ -42,8 +47,11 @@ export default tseslint.config(
     },
   },
   {
-    // The CLI package legitimately writes to stdout/stderr.
-    files: ["packages/create-d1-rest-worker/src/**/*.ts"],
+    // The CLI packages legitimately write to stdout/stderr.
+    files: [
+      "packages/create-d1-rest-worker/src/**/*.ts",
+      "packages/create-turso-rest-worker/src/**/*.ts",
+    ],
     rules: {
       "no-console": "off",
     },
