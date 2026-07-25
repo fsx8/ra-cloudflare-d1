@@ -4,7 +4,7 @@ Repo-specific guidance for OpenCode sessions. Verify against current code before
 
 ## Toolchain
 
-- pnpm@11 workspaces + turbo monorepo, TypeScript 7, vitest, Node 20 (CI).
+- pnpm@11 workspaces + turbo monorepo, TypeScript 7, vitest, Node 24 (CI).
 - Formatting: `pnpm format` (prettier -w .). Linting: `pnpm lint` (ESLint 10 + typescript-eslint `recommendedTypeChecked`, flat config at repo root).
 - TypeScript is pinned to `~6.0.3`, not `^7.x`, because `typescript-eslint` peers `typescript: <6.1.0`. Don't bump TS past 6.0.x without checking that constraint.
 - `pnpm-workspace.yaml` sets `minimumReleaseAge: 1440` (1 day): freshly-published deps will not install until 24h old. If a brand-new release is rejected, this is why. `allowBuilds` permits esbuild/sharp/workerd install scripts.

@@ -128,7 +128,7 @@ The default D1 binding name is `"DB"`; override it with the second argument:
 
 ## Development
 
-This is a pnpm + turbo monorepo (Node 20, TypeScript, Vitest). From the repo
+This is a pnpm + turbo monorepo (Node 24, TypeScript, Vitest). From the repo
 root:
 
 ```bash
