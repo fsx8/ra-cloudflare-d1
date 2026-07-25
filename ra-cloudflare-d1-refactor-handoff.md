@@ -1,9 +1,9 @@
-# Refactor handoff: multi-database support (D1 + Turso) in `ra-cloudflare-d1`
+# Refactor handoff: multi-database support (D1 + Turso)
 
-> Status: **complete and fully green.** All phases 1–3 plus the previously
-> deferred `create-turso-rest-worker` CLI are done. Nothing is committed yet;
-> this document describes the working tree as it stands on `main` + uncommitted
-> changes.
+> Status: **SHIPPED — 1.0.0 published.** All 8 packages are live on npm at
+> `1.0.0` from the renamed repo [`fsx8/ra-edge-sqlite`](https://github.com/fsx8/ra-edge-sqlite),
+> and `@ra-cloudflare-d1/types` is deprecated in favor of `rest-worker-types`.
+> This document is the historical record of the refactor.
 
 ---
 
