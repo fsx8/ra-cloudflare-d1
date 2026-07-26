@@ -1,5 +1,12 @@
 # ra-cloudflare-d1
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies [[`ba16d0c`](https://github.com/fsx8/ra-edge-sqlite/commit/ba16d0c3a23169b2a22fdc30cdfabbf2d8272d5e)]:
+  - rest-worker-types@1.1.0
+
 ## 1.0.0
 
 ### Major Changes
