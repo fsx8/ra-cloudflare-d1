@@ -1,5 +1,12 @@
 # ra-turso
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - ra-cloudflare-d1@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
