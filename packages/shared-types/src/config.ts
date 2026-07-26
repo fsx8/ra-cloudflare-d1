@@ -31,7 +31,18 @@ export interface RateLimitConfig {
 
 export interface RestWorkerConfig {
   resources: Record<string, ResourceConfig>;
-  apiKey: string;
+  /**
+   * Bearer token checked against the request's `Authorization` header.
+   * Required when `requireApiKey` is not `false` (the default); ignored when
+   * `requireApiKey: false`.
+   */
+  apiKey?: string;
+  /**
+   * Defaults to `true` (bearer-token auth enforced). Set to `false` to skip
+   * application-level auth entirely — only safe when the worker is fronted by
+   * a trusted authenticating proxy (Cloudflare Access, an API gateway, etc.).
+   */
+  requireApiKey?: boolean;
   corsOrigins: string[] | "*";
   basePath?: string;
   enableSchemaEndpoint?: boolean;

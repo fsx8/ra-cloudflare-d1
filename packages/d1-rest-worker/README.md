@@ -26,8 +26,21 @@ export default {
 };
 ```
 
-The default D1 binding is `"DB"`; override it with the second argument:
-`createD1RestApi(config, { dbBinding: "MY_DB" })`.
+The second argument selects how the D1 adapter is obtained:
+
+```ts
+// Resolve a binding from env by name (default "DB") — the standalone path.
+createD1RestApi(config, { dbBinding: "MY_DB" });
+
+// Supply a pre-built RestWorkerDb instead of a binding lookup — useful for
+// tests (in-memory adapter) or hosts that already hold a D1Database reference.
+createD1RestApi(config, { adapter: createD1Adapter(myD1Binding) });
+
+// No second argument is equivalent to { dbBinding: "DB" }.
+createD1RestApi(config);
+```
+
+`createD1Adapter` is exported for composition. `requireApiKey` defaults to `true`; set it to `false` only when a trusted authenticating proxy (Cloudflare Access, a gateway, …) already gates every request before the worker.
 
 ## Notes
 

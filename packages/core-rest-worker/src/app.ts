@@ -28,7 +28,20 @@ export function createRestApp(
   if (config.rateLimit) {
     app.use("*", rateLimitMiddleware(config.rateLimit));
   }
-  app.use("*", authMiddleware(config.apiKey));
+  // `requireApiKey` defaults to true (bearer-token auth enforced). Opt out with
+  // `requireApiKey: false` only when a trusted authenticating proxy (Cloudflare
+  // Access, a gateway, ...) already gates every request before the worker.
+  if (config.requireApiKey !== false) {
+    if (!config.apiKey) {
+      throw new Error(
+        "RestWorkerConfig.apiKey is required when requireApiKey is not false. " +
+          "If the worker is fronted by a trusted authenticating proxy " +
+          "(e.g. Cloudflare Access), set requireApiKey: false to skip " +
+          "application-level auth.",
+      );
+    }
+    app.use("*", authMiddleware(config.apiKey));
+  }
   app.use("*", async (c, next) => {
     c.set("db", opts.adapter(c.env));
     await next();

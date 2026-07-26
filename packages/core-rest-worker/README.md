@@ -25,6 +25,22 @@ const app = createRestApp(config, { adapter: (env) => myAdapter });
 
 See `packages/d1-rest-worker/src/adapter.ts` and `packages/turso-rest-worker/src/adapter.ts` in the [repo](https://github.com/fsx8/ra-edge-sqlite) for reference implementations (~20 lines each).
 
+## Configuration
+
+`createRestApp(config, { adapter })` takes a `RestWorkerConfig`. Two fields control authentication:
+
+- **`apiKey`** — the bearer token checked against each request's `Authorization` header. Required by default.
+- **`requireApiKey`** — defaults to `true` (bearer auth enforced). Set to `false` to skip application-level auth entirely. The auth middleware is not mounted, and `apiKey` is ignored.
+
+```ts
+const app = createRestApp(
+  { requireApiKey: false, corsOrigins: "*", resources: { ... } },
+  { adapter: (env) => myAdapter },
+);
+```
+
+> **Security:** `requireApiKey: false` is only safe when the worker is fronted by a trusted authenticating proxy (Cloudflare Access, an API gateway, a service mesh, etc.) that gates every request before it reaches the worker. Without such a proxy, anyone can read and mutate your data.
+
 ## License
 
 MIT
