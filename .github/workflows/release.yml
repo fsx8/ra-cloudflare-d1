@@ -3,6 +3,10 @@ name: Release
 on:
   push:
     branches: [main]
+  # Manual escape hatch: re-publish the current main (e.g. to recover from a
+  # failed publish) without cutting a new release. Still gated below to require
+  # a clean changeset state.
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -29,20 +33,21 @@ jobs:
         uses: changesets/action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # Publish ONLY when the Version Packages PR is merged into main. The
+      # Publish when (a) the Version Packages PR is merged into main — the
       # commit message carries the signal: a merge commit references the
-      # `changeset-release/main` branch; a squash commit is titled
-      # "Version Packages". Both merge styles are covered. The same step then
-      # creates a GitHub Release (tag + curated notes aggregated from the
-      # packages' CHANGELOG.md by scripts/release-notes.mjs).
-      - name: Build, publish & tag release (only on a Version Packages merge)
-        if: steps.cs.outputs.hasChangesets == 'false' && (contains(github.event.head_commit.message, 'changeset-release/main') || contains(github.event.head_commit.message, 'Version Packages'))
+      # `changeset-release/main` branch, a squash commit is titled
+      # "Version Packages" — or (b) the workflow is dispatched manually. The
+      # glob MUST be quoted: pnpm's `--filter` does its own micromatch
+      # expansion, while the surrounding bash shell would otherwise expand
+      # `./packages/**` into multiple path args and break the command.
+      - name: Build, publish & tag release
+        if: steps.cs.outputs.hasChangesets == 'false' && (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'changeset-release/main') || contains(github.event.head_commit.message, 'Version Packages'))
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm build
-          pnpm -r --filter ./packages/** publish
+          pnpm --filter './packages/**' publish --no-git-checks
           tag=$(node scripts/release-notes.mjs tag)
           node scripts/release-notes.mjs body > /tmp/release-notes.md
           gh release create "$tag" --title "$tag" --notes-file /tmp/release-notes.md --target "$GITHUB_SHA"
